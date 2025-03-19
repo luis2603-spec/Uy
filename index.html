@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XP Descabezadoras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+      background: #121212; /* Fondo oscuro */
+      color: #e0e0e0; /* Texto claro */
+    }
+    h1, h2 {
+      color: #4fc3f7; /* Azul vibrante */
+    }
+    .screen {
+      display: none; /* Ocultas por defecto */
+    }
+    .active {
+      display: block; /* Solo la pantalla activa será visible */
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #333; /* Fondo gris oscuro */
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4fc3f7; /* Azul vibrante */
+      color: #121212;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    button:hover {
+      background-color: #29b6f6;
+    }
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: 1px solid #4fc3f7;
+      border-radius: 5px;
+      background-color: #333;
+      color: #e0e0e0;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      color: #ffc107; /* Amarillo para resaltar */
+      font-weight: bold;
+    }
+    #mensaje-inicial {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .mensaje-titulo {
+      background-color: #333; /* Fondo gris oscuro */
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      border: 2px solid #4fc3f7; /* Azul vibrante */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
+    }
+    .mensaje-titulo h2 {
+      color: #4fc3f7;
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    /* Animación del mensaje "hecho por tu papa, por la lacra Jorge" */
+    #mensaje-jorge {
+      position: fixed;
+      bottom: 10px;
+      width: 100%;
+      font-size: 16px;
+      color: #ffc107; /* Amarillo vibrante */
+      text-align: center;
+      animation: desplazamiento 10s linear infinite;
+    }
+
+    @keyframes desplazamiento {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Mensaje Inicial -->
+  <div id="mensaje-inicial">
+    <div class="mensaje-titulo">
+      <h2>XP Descabezadoras malosas 😈</h2>
+      <button onclick="mostrarPantalla('pantalla-intro', 'mensaje-inicial')">Continuar</button>
+    </div>
+  </div>
+
+  <!-- Pantalla Introducción -->
+  <div id="pantalla-intro" class="screen">
+    <div class="container">
+      <h2>Calcula tu marketing pichal con este test</h2>
+      <button onclick="mostrarPantalla('preguntas', 'pantalla-intro')">Iniciar</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Preguntas -->
+  <div id="preguntas" class="screen">
+    <div class="container">
+      <h1 id="titulo-pregunta"></h1>
+      <select id="respuesta">
+        <option value="" selected>Ninguna</option> <!-- Opción predeterminada -->
+      </select>
+      <button onclick="siguientePregunta()">Siguiente</button>
+    </div>
+  </div>
+
+  <!-- Pantalla de Resultados -->
+  <div id="pantalla-resultados" class="screen">
+    <div class="container">
+      <h2>Resultados del Test</h2>
+      <p id="result"></p>
+    </div>
+  </div>
+
+  <!-- Mensaje Animado -->
+  <div id="mensaje-jorge">hecho por tu papa, por la lacra Jorge</div>
+
+  <script>
+    const preguntas = [
+      {
+        texto: "¿Ya debutaste?",
+        opciones: [
+          { texto: "Sí", valor: 1 },
+          { texto: "No", valor: 0 }
+        ]
+      },
+      {
+        texto: "¿Cuántas feas te has detonado?",
+        opciones: Array.from({ length: 11 }, (_, i) => ({ texto: `${i}`, valor: i }))
+      },
+      {
+        texto: "¿Cuántas lindas te has detonado?",
+        opciones: Array.from({ length: 11 }, (_, i) => ({ texto: `${i}`, valor: i * 2 }))
+      },
+      {
+        texto: "¿Cuántas de casa has detonado?",
+        opciones: Array.from({ length: 11 }, (_, i) => ({ texto: `${i}`, valor: i }))
+      },
+      {
+        texto: "¿Mayores o menores?",
+        opciones: [
+          { texto: "Mayores", valor: 20 },
+          { texto: "Menores", valor: 10 }
+        ]
+      },
+      {
+        texto: "¿Alguna malosa tenía tatuajes o piercings?",
+        opciones: [
+          { texto: "Sí", valor: 15 },
+          { texto: "No", valor: 0 }
+        ]
+      }
+    ];
+
+    let preguntaActual = 0;
+    let xpTotal = 0;
+
+    function mostrarPantalla(pantallaId, ocultarId = null) {
+      if (ocultarId) {
+        document.getElementById(ocultarId).style.display = 'none';
+      }
+      document.querySelectorAll('.screen').forEach(screen => {
+        screen.classList.remove('active');
+      });
+      document.getElementById(pantallaId).classList.add('active');
+
+      if (pantallaId === 'preguntas') {
+        mostrarPregunta();
+      }
+    }
+
+    function mostrarPregunta() {
+      const pregunta = preguntas[preguntaActual];
+      document.getElementById("titulo-pregunta").innerText = pregunta.texto;
+
+      const select = document.getElementById("respuesta");
+      select.innerHTML = "";
+      select.innerHTML = '<option value="" selected>Ninguna</option>';
+
+      pregunta.opciones.forEach(opcion => {
+        const optionElement = document.createElement("option");
+        optionElement.value = opcion.valor;
+        optionElement.textContent = opcion.texto;
+        select.appendChild(optionElement);
+      });
+    }
+
+    function siguientePregunta() {
+      const select = document.getElementById("respuesta");
+      const valor = select.value;
+
+      if (valor === "") {
+        alert("selecciona una imbécil enfermo");
+        return;
+      }
+
+      const parsedValor = parseInt(valor);
+
+      if (preguntaActual === 0 && parsedValor === 0) {
+        alert("no puedes continuar con el test malvado inutil virgen, inservible, estas mas cerca de ser gay que de tocar una mujer.");
+        mostrarPantalla('pantalla-intro');
+        return;
+      }
+
+      xpTotal += parsedValor;
+
+      preguntaActual++;
+
+      if (preguntaActual < preguntas.length) {
+        mostrarPregunta();
+      } else {
+        mostrarPantalla('pantalla-resultados');
+        mostrarResultados();
+      }
+    }
+
+    function mostrarResultados() {
+      const resultado = document.getElementById("result");
+
+      let mensaje = "";
+      if (xpTotal >= 1 && xpTotal <= 35) {
+        mensaje = "Inservible inutil de mierda matate becerrl";
+      } else if (xpTotal >= 36 && xpTotal <= 56) {
+        mensaje = "debes mejorar malvada porqueria ";
+      } else if (xpTotal > 56) {
+        mensaje = "experto se nota que te pegaste a ana kari ";
+      } else {
+        mensaje = "Parece que algo salió mal.";
+      }
+
+      resultado.innerText = `XP Total: ${xpTotal}. Resultado: ${mensaje}`;
+    }
+  </script>
+</body>
+</html>
